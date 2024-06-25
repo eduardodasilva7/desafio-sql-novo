@@ -255,19 +255,177 @@ FROM tbTitulos t JOIN tbGravadoras g ON t.codGrav = g.codGrav JOIN tbCategorias 
 
 -- 4. Selecione o nome dos clientes e os títulos dos CDs vendidos em cada pedido que o cliente fez. 
 -- Resposta: 
-select tbClientes.nomeCli, tbTitulos.nomeCd from tbClientes join tbPedidos on tbClientes.codCli = tbPedidos.codCLi join tbTitulosPedido on tbPedidos.numPed = tbTitulosPedido.numPed join tbTiutlos on tbTitulosPedido.codTit = tbTitulos.codTIt; 
-
+SELECT 
+c.nomeCli AS NomeCliente, t.nomeCd AS TituloCd 
+FROM tbClientes c JOIN tbPedidos p ON c.codCli = p.codCli 
+JOIN tbTitulosPedido tp ON p.numPed = tp.numPed JOIN tbTitulos t ON tp.codTit = t.codTit;
+ 
+select cli.nome as 'Nome do Cliente',
+tit.nome as 'Titulo do CD' from tbTitulosPedidos as titped 
+inner join tbTitulos as tit on titped.codTit = tit.codTit
+inner join tbPedidos as ped on titped.numPed = ped.numPed 
+inner join tbClientes as cli on ped.codCli = cli.codCli;
 
 -- 5. Selecione o nome do funcionário, número, data e valor dos pedidos que este funcionário registrou, além do nome do cliente que está fazendo o pedido. 
-
+select 
+    tbFuncionarios.nomeFunc, tbPedidos.numPed, tbPedidos.dataPed, tbPedidos.valPed, tbClientes.nomeCli 
+from tbPedidos 
+join tbFuncionarios on tbPedidos.codFun = tbFuncionarios.codFunc 
+join tbClientes on tbPedidos = tbClientes.codCli;
 
 -- 6. Selecione o nome dos funcionários e o nome de todos os dependentes de cada funcionário. 
 -- Resposta: 
+select 
+    tbFuncionarios.nomeFunc, tbDependentes.nomeDep 
+from tbFuncionarios
+join tbDependentes on tbFuncionarios.codFunc =tbDependentes.codFunc
+
 
 -- 7. Selecione o nome dos clientes e o nome dos cônjuges de cada cliente. Resposta: 
+select
+    c.nomeCli AS NomeCliente,
+    j.nomeConj AS NomeConjuge
+from tbClientes c
+join mtbConjuge j ON c.codCli = j.codCli;
+
 
 -- 8. Selecione o nome de todos os clientes. Se estes possuem cônjuges, mostrar os nomes  de seus cônjuges também. 
 -- Resposta:
+select 
+    c.nomeCli,
+    j.nomeConj
+from
+    tbClientes c
+left join
+    tbConjuge j on c.codCli = j.codCli;
+
 
 -- 9. Selecione nome do cliente, nome do cônjuge, número do pedido que cada cliente fez, valor de cada pedido que cada cliente fez e código do funcionário que atendeu a cada pedido. 
 -- Resposta:
+select
+    c.nomeCli,
+    j.nomeConj,
+    p.numPed,
+    p.valPed,
+    p.codFunc
+from
+    tbClientes c
+left join 
+    tbConjuge j on c.codCli = j.codCli
+join
+    tbPedidos p on c.codCli = p.codCli;
+
+
+-- 1. Exiba quantos pedidos cada cliente fez.
+select 
+    c.nomeCli as 'Nome do cliente', 
+    sum(p.numPed) as 'Numero de pedidos' 
+from 
+    tbClientes c 
+join 
+    tbPedidos p on c.codCli = p.codCli 
+group by 
+    c.codCli;
+
+-- 2. Exiba quantos CDs possui cada categoria.
+select 
+    cat.nomeCat as 'Categorias', 
+    count(Tit.codTit) as 'Nome dos cds' 
+from 
+    tbCategorias cat 
+join 
+    tbTitulos Tit on cat.codCat = Tit.codTit 
+group by 
+    cat.codCat;
+
+-- 3. Exiba quantos CDs possui cada gravadora.
+select 
+    grav.nomeGrav as 'Gravadora',
+    count(Tit.codTit) as 'Quantidade de CDs'
+from
+    tbGravadoras grav
+join
+    tbTitulos Tit on grav.codGrav = Tit.codTit
+group by
+    grav.codGrav;
+
+
+-- 4. Exiba quantos pedidos cada funcionário atendeu.
+select 
+    func.nomeFunc as 'Funcionarios',
+    count(ped.numPed) as 'Numero de pedidos'
+from 
+    tbFuncionarios func
+join 
+    tbPedidos ped on func.codFunc = ped.codFunc
+group by 
+    func.codFunc;
+
+-- 5. Exiba quantos dependentes tem cada funcionário.
+select 
+    func.nomeFunc as 'Funcionários',
+    count(dep.codDep) as 'Dependentes dos Funcionários'
+from 
+    tbFuncionarios func
+left join 
+    tbDependentes dep on func.codFunc = dep.codFunc
+group by 
+    func.codFunc;
+
+-- 6. Exiba quantos pedidos cada cliente fez, mostrando o nome dos clientes.
+select 
+    c.nomeCli as 'Nome do cliente', 
+    count(p.numPed) as 'Numero de pedidos' 
+from 
+    tbClientes c 
+join 
+    tbPedidos p on c.codCli = p.codCli 
+group by 
+    c.nomeCli;    
+
+
+-- 7. Exiba quantos CDs possui cada categoria, mostrando o nome das mesmas.
+select 
+    cat.nomeCat as 'Categorias', 
+    count(Tit.codTit) as 'Nome dos cds' 
+from 
+    tbCategorias cat 
+join 
+    tbTitulos Tit on cat.codCat = Tit.codTit 
+group by 
+    cat.nomeCat;
+
+
+-- 8. Exiba quantos CDs possui cada gravadora, mostrando o nome das mesmas.
+select 
+    grav.nomeGrav as 'Gravadora',
+    count(Tit.codTit) as 'Quantidade de CDs'
+from
+    tbGravadoras grav
+join
+    tbTitulos Tit on grav.codGrav = Tit.codTit
+group by
+    grav.nomeGrav;
+
+
+-- 9. Exiba quantos pedidos cada funcionário atendeu, mostrando o nome dos funcionários.
+select 
+    func.nomeFunc as 'Funcionarios',
+    count(ped.numPed) as 'Numero de pedidos'
+from 
+    tbFuncionarios func
+join 
+    tbPedidos ped on func.codFunc = ped.codFunc
+group by 
+    func.nomeFunc;
+
+-- 10. Exiba quantos dependentes cada funcionário possui, mostrando seus nomes.
+select 
+    func.nomeFunc as 'Funcionários',
+    count(dep.codDep) as 'Dependentes dos Funcionários'
+from 
+    tbFuncionarios func
+left join 
+    tbDependentes dep on func.codFunc = dep.codFunc
+group by 
+    func.nomeFunc;
